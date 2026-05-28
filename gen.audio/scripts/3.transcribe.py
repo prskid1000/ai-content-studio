@@ -245,7 +245,7 @@ def generate_files(segments, srt_file, text_file, timeline_file):
     
     return total_duration
 
-def transcribe_audio(audio_path, srt_file, text_file, timeline_file, model_name="large", resumable_state=None):
+def transcribe_audio(audio_path, srt_file, text_file, timeline_file, model_name="large-v3", resumable_state=None):
     """Transcribe audio and generate all output files"""
     try:
         # Check if transcription is already complete (resumable mode)
