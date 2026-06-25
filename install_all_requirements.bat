@@ -231,9 +231,26 @@ echo SUCCESS: Triton installed
 echo.
 
 echo ========================================
-echo Installing Additional Tools via winget...
-REM Install ffmpeg
-winget install "FFmpeg (Shared)"
+echo Installing Additional Tools (ffmpeg)...
+echo ========================================
+REM ffmpeg shared libraries are required by torchcodec for audio/video decode.
+REM Skip if ffmpeg is already on PATH.
+where ffmpeg >nul 2>nul
+if not errorlevel 1 (
+    echo ffmpeg already installed, skipping.
+    goto :ffmpeg_done
+)
+REM winget may not be on PATH in every shell; check before using it.
+where winget >nul 2>nul
+if errorlevel 1 (
+    echo WARNING: winget not found. Install ffmpeg ^(shared build^) manually:
+    echo   - winget install "FFmpeg ^(Shared^)"   ^(once App Installer/winget is available^)
+    echo   - or download a "shared" build from https://www.gyan.dev/ffmpeg/builds/ and add its bin\ to PATH
+    echo   torchcodec needs the ffmpeg shared DLLs at runtime.
+    goto :ffmpeg_done
+)
+winget install --id Gyan.FFmpeg.Shared -e --accept-source-agreements --accept-package-agreements
+:ffmpeg_done
 echo.
 
 echo ========================================
