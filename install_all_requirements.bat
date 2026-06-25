@@ -142,60 +142,24 @@ if exist "ComfyUI\requirements.txt" (
 )
 echo.
 
-REM Clone custom nodes if missing
+REM Clone missing custom nodes, or update existing ones to the latest origin (main/master)
 echo ========================================
-echo Cloning missing custom nodes...
+echo Cloning / updating custom nodes...
 echo ========================================
 echo.
 
-if not exist "ComfyUI\custom_nodes\ComfyMath" (
-    echo Cloning ComfyMath...
-    git clone https://github.com/evanspearman/ComfyMath "ComfyUI\custom_nodes\ComfyMath"
-)
-if not exist "ComfyUI\custom_nodes\ComfyUI-LTXVideo" (
-    echo Cloning ComfyUI-LTXVideo...
-    git clone https://github.com/Lightricks/ComfyUI-LTXVideo "ComfyUI\custom_nodes\ComfyUI-LTXVideo"
-)
-if not exist "ComfyUI\custom_nodes\ComfyUI-MediaUtilities" (
-    echo Cloning ComfyUI-MediaUtilities...
-    git clone https://github.com/ThanaritKanjanametawatAU/ComfyUI-MediaUtilities "ComfyUI\custom_nodes\ComfyUI-MediaUtilities"
-)
-if not exist "ComfyUI\custom_nodes\ComfyUI-Whisper" (
-    echo Cloning ComfyUI-Whisper...
-    git clone https://github.com/yuvraj108c/ComfyUI-Whisper "ComfyUI\custom_nodes\ComfyUI-Whisper"
-)
-if not exist "ComfyUI\custom_nodes\ComfyUI_LoadImageFromHttpURL" (
-    echo Cloning ComfyUI_LoadImageFromHttpURL...
-    git clone https://github.com/jerrywap/ComfyUI_LoadImageFromHttpURL "ComfyUI\custom_nodes\ComfyUI_LoadImageFromHttpURL"
-)
-if not exist "ComfyUI\custom_nodes\comfyui-manager" (
-    echo Cloning ComfyUI-Manager...
-    git clone https://github.com/ltdrdata/ComfyUI-Manager "ComfyUI\custom_nodes\comfyui-manager"
-)
-if not exist "ComfyUI\custom_nodes\controlaltai-nodes" (
-    echo Cloning ControlAltAI-Nodes...
-    git clone https://github.com/gseth/ControlAltAI-Nodes "ComfyUI\custom_nodes\controlaltai-nodes"
-)
-if not exist "ComfyUI\custom_nodes\ComfyUI-GGUF" (
-    echo Cloning ComfyUI-GGUF...
-    git clone https://github.com/city96/ComfyUI-GGUF "ComfyUI\custom_nodes\ComfyUI-GGUF"
-)
-if not exist "ComfyUI\custom_nodes\comfyui-kjnodes" (
-    echo Cloning ComfyUI-KJNodes...
-    git clone https://github.com/kijai/ComfyUI-KJNodes "ComfyUI\custom_nodes\comfyui-kjnodes"
-)
-if not exist "ComfyUI\custom_nodes\comfyui-rmbg" (
-    echo Cloning ComfyUI-RMBG...
-    git clone https://github.com/1038lab/ComfyUI-RMBG "ComfyUI\custom_nodes\comfyui-rmbg"
-)
-if not exist "ComfyUI\custom_nodes\comfyui-videohelpersuite" (
-    echo Cloning ComfyUI-VideoHelperSuite...
-    git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite "ComfyUI\custom_nodes\comfyui-videohelpersuite"
-)
-if not exist "ComfyUI\custom_nodes\ComfyUI-OmniVoice-TTS" (
-    echo Cloning ComfyUI-OmniVoice-TTS...
-    git clone https://github.com/Saganaki22/ComfyUI-OmniVoice-TTS.git "ComfyUI\custom_nodes\ComfyUI-OmniVoice-TTS"
-)
+call :sync_node https://github.com/evanspearman/ComfyMath "ComfyUI\custom_nodes\ComfyMath"
+call :sync_node https://github.com/Lightricks/ComfyUI-LTXVideo "ComfyUI\custom_nodes\ComfyUI-LTXVideo"
+call :sync_node https://github.com/ThanaritKanjanametawatAU/ComfyUI-MediaUtilities "ComfyUI\custom_nodes\ComfyUI-MediaUtilities"
+call :sync_node https://github.com/yuvraj108c/ComfyUI-Whisper "ComfyUI\custom_nodes\ComfyUI-Whisper"
+call :sync_node https://github.com/jerrywap/ComfyUI_LoadImageFromHttpURL "ComfyUI\custom_nodes\ComfyUI_LoadImageFromHttpURL"
+call :sync_node https://github.com/ltdrdata/ComfyUI-Manager "ComfyUI\custom_nodes\comfyui-manager"
+call :sync_node https://github.com/gseth/ControlAltAI-Nodes "ComfyUI\custom_nodes\controlaltai-nodes"
+call :sync_node https://github.com/city96/ComfyUI-GGUF "ComfyUI\custom_nodes\ComfyUI-GGUF"
+call :sync_node https://github.com/kijai/ComfyUI-KJNodes "ComfyUI\custom_nodes\comfyui-kjnodes"
+call :sync_node https://github.com/1038lab/ComfyUI-RMBG "ComfyUI\custom_nodes\comfyui-rmbg"
+call :sync_node https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite "ComfyUI\custom_nodes\comfyui-videohelpersuite"
+call :sync_node https://github.com/Saganaki22/ComfyUI-OmniVoice-TTS.git "ComfyUI\custom_nodes\ComfyUI-OmniVoice-TTS"
 echo.
 
 REM Install all custom_nodes requirements.txt
@@ -257,4 +221,22 @@ echo ========================================
 echo All requirements installation completed!
 echo ========================================
 pause
+goto :eof
+
+REM ---------------------------------------------------------------------------
+REM :sync_node <repo-url> <target-dir>
+REM Clone the repo if the target dir is missing, otherwise fast-forward it to
+REM the latest origin (follows whichever default branch was cloned: main/master).
+REM ---------------------------------------------------------------------------
+:sync_node
+if not exist "%~2" (
+    echo Cloning %~nx2...
+    git clone "%~1" "%~2"
+    if errorlevel 1 echo WARNING: Failed to clone %~nx2
+) else (
+    echo Updating %~nx2...
+    git -C "%~2" pull --ff-only
+    if errorlevel 1 echo WARNING: Could not fast-forward %~nx2 ^(local changes or diverged branch^) - skipping.
+)
+exit /b 0
 
