@@ -23,9 +23,11 @@ if errorlevel 1 (
 echo SUCCESS: wheel installed
 echo.
 
-REM Install PyTorch first
-echo [1/4] Installing PyTorch (nightly with CUDA 13.0)...
-.venv\Scripts\python.exe -m pip install --no-cache-dir torch==2.9.0 torchvision==0.24.0 torchaudio==2.9.0 --index-url https://download.pytorch.org/whl/cu130
+REM Install PyTorch first (torch 2.12.1 to match the flash-attn cu132torch2.12.1 wheel)
+REM NOTE: torchaudio is discontinued (final release was 2.9.0); there is no cu132/torch-2.12 wheel.
+REM       Audio decode/encode is now handled by torchcodec (installed below).
+echo [1/4] Installing PyTorch (CUDA 13.2)...
+.venv\Scripts\python.exe -m pip install --no-cache-dir torch==2.12.1 torchvision==0.27.1 --index-url https://download.pytorch.org/whl/cu132
 if errorlevel 1 (
     echo ERROR: Failed to install PyTorch
     pause
@@ -34,9 +36,9 @@ if errorlevel 1 (
 echo SUCCESS: PyTorch installed
 echo.
 
-REM Install TorchCodec (required for torchaudio save/load; 0.9.1 for PyTorch 2.9.x)
-echo Installing TorchCodec 0.9.1...
-.venv\Scripts\python.exe -m pip install --no-cache-dir torchcodec==0.9.1
+REM Install TorchCodec (audio/video decode-encode; 0.14.0 requires torch>=2.11, OK for 2.12)
+echo Installing TorchCodec 0.14.0...
+.venv\Scripts\python.exe -m pip install --no-cache-dir torchcodec==0.14.0
 if errorlevel 1 (
     echo ERROR: Failed to install TorchCodec
     pause
@@ -45,9 +47,9 @@ if errorlevel 1 (
 echo SUCCESS: TorchCodec installed
 echo.
 
-REM Install xformers (attention backend for PyTorch 2.9 + CUDA 13.0; use PyTorch index for cu130 wheel)
+REM Install xformers (attention backend; 0.0.35 requires torch>=2.10, ships a generic win wheel on PyPI)
 echo Installing xformers...
-.venv\Scripts\python.exe -m pip install --no-cache-dir xformers==0.0.33 --extra-index-url https://download.pytorch.org/whl/cu130
+.venv\Scripts\python.exe -m pip install --no-cache-dir xformers==0.0.35
 if errorlevel 1 (
     echo ERROR: Failed to install xformers
     pause
@@ -56,9 +58,9 @@ if errorlevel 1 (
 echo SUCCESS: xformers installed
 echo.
 
-REM Install flash-attn (pre-built wheel for Python 3.12 + CUDA 13.0)
-echo [2/4] Installing flash-attn (pre-built wheel for CUDA 13.0)...
-.venv\Scripts\python.exe -m pip install --no-cache-dir https://huggingface.co/ussoewwin/Flash-Attention-2_for_Windows/resolve/main/flash_attn-2.8.3+cu130torch2.9.0cxx11abiTRUE-cp312-cp312-win_amd64.whl
+REM Install flash-attn (pre-built wheel for Python 3.12 + CUDA 13.2)
+echo [2/4] Installing flash-attn (pre-built wheel for CUDA 13.2)...
+.venv\Scripts\python.exe -m pip install --no-cache-dir https://huggingface.co/ussoewwin/Flash-Attention-2_for_Windows/resolve/main/flash_attn-2.9.1%2Bcu132torch2.12.1cxx11abiTRUE-cp312-cp312-win_amd64.whl
 if errorlevel 1 (
     echo ERROR: Failed to install flash-attn
     pause
@@ -67,9 +69,9 @@ if errorlevel 1 (
 echo SUCCESS: flash-attn installed
 echo.
 
-REM Install sage-attn (pre-built wheel for Python 3.12 + CUDA 13.0)
-echo [3/4] Installing sage-attn (pre-built wheel for CUDA 13.0)...
-.venv\Scripts\python.exe -m pip install --no-cache-dir https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows.post4/sageattention-2.2.0+cu130torch2.9.0andhigher.post4-cp39-abi3-win_amd64.whl
+REM Install sage-attn (no cu132 build exists; cu130 wheel is forward-compatible with the CUDA 13.2 runtime)
+echo [3/4] Installing sage-attn (cu130 wheel, torch 2.10+)...
+.venv\Scripts\python.exe -m pip install --no-cache-dir https://github.com/woct0rdho/SageAttention/releases/download/v2.2.0-windows.post5/sageattention-2.2.0+cu130torch2.10.0andhigher.post5-cp310-abi3-win_amd64.whl
 if errorlevel 1 (
     echo ERROR: Failed to install sage-attn
     pause
@@ -89,7 +91,7 @@ if errorlevel 1 (
 echo.
 
 REM Install ONNX Runtime GPU (nightly CUDA 13 - pin version + --no-deps to avoid pip downloading many nightlies)
-echo [4/4] Installing ONNX Runtime GPU (nightly CUDA 13.0)...
+echo [4/4] Installing ONNX Runtime GPU (nightly CUDA 13.2)...
 .venv\Scripts\python.exe -m pip install --no-cache-dir --pre --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ort-cuda-13-nightly/pypi/simple/ onnxruntime-gpu
 if errorlevel 1 (
     echo ERROR: Failed to install ONNX Runtime GPU
