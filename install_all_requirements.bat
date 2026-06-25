@@ -60,7 +60,7 @@ echo.
 
 REM Install flash-attn (pre-built wheel for Python 3.12 + CUDA 13.2)
 echo [2/4] Installing flash-attn (pre-built wheel for CUDA 13.2)...
-.venv\Scripts\python.exe -m pip install --no-cache-dir https://huggingface.co/ussoewwin/Flash-Attention-2_for_Windows/resolve/main/flash_attn-2.9.1%2Bcu132torch2.12.1cxx11abiTRUE-cp312-cp312-win_amd64.whl
+.venv\Scripts\python.exe -m pip install --no-cache-dir https://huggingface.co/ussoewwin/Flash-Attention-2_for_Windows/resolve/main/flash_attn-2.9.1+cu132torch2.12.1cxx11abiTRUE-cp312-cp312-win_amd64.whl
 if errorlevel 1 (
     echo ERROR: Failed to install flash-attn
     pause
